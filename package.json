@@ -14,7 +14,7 @@
     "@ai-sdk/openai-compatible": "^2",
     "@nuxt/ui": "^4",
     "ai": "^6",
-    "nuxt": "^3",
+    "nuxt": "^4",
     "vue": "^3.5",
     "zod": "^4"
   },

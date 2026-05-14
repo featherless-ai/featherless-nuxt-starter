@@ -43,39 +43,59 @@ async function send() {
 </script>
 
 <template>
-  <div class="min-h-screen bg-neutral-50 dark:bg-neutral-950">
-    <header class="border-b border-neutral-200 dark:border-neutral-800">
+  <div class="min-h-screen bg-[#141413] text-white">
+    <header class="border-b border-white/10">
       <div class="max-w-3xl mx-auto px-6 py-4 flex items-center gap-3">
-        <div class="text-teal-600 dark:text-teal-400">
-          <img src="/featherless-logo.svg" alt="Featherless" class="w-8 h-8" />
-        </div>
+        <img src="/featherless-logo.svg" alt="Featherless" class="w-9 h-9 rounded-lg" />
         <div>
-          <h1 class="text-lg font-semibold">Featherless Nuxt Starter</h1>
-          <p class="text-xs text-neutral-500">Model: {{ config.public.defaultModel }}</p>
+          <h1 class="text-lg font-semibold tracking-tight">Featherless Nuxt Starter</h1>
+          <p class="text-xs text-white/50 font-mono">{{ config.public.defaultModel }}</p>
         </div>
       </div>
     </header>
 
     <main class="max-w-3xl mx-auto px-6 py-8 space-y-4">
-      <div v-if="messages.length === 0" class="text-center py-16 text-neutral-500">
-        <p class="text-2xl mb-2">Hello, world.</p>
-        <p class="text-sm">Type a message below to stream a response from Featherless.</p>
+      <div v-if="messages.length === 0" class="text-center py-16">
+        <p class="text-3xl mb-3 tracking-tight">
+          <span class="text-[#FEF47A]">Hello,</span> world.
+        </p>
+        <p class="text-sm text-white/50">Type a message below to stream a response from Featherless.</p>
       </div>
 
-      <div v-for="(m, i) in messages" :key="i" class="flex" :class="m.role === 'user' ? 'justify-end' : 'justify-start'">
+      <div
+        v-for="(m, i) in messages"
+        :key="i"
+        class="flex"
+        :class="m.role === 'user' ? 'justify-end' : 'justify-start'"
+      >
         <div
           class="max-w-[80%] rounded-2xl px-4 py-2"
           :class="m.role === 'user'
-            ? 'bg-teal-600 text-white'
-            : 'bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800'"
+            ? 'bg-[#FEF47A] text-[#141413] font-medium'
+            : 'bg-white/[0.04] border border-white/10 text-white/90'"
         >
-          <p class="whitespace-pre-wrap text-sm">{{ m.content || (sending && i === messages.length - 1 ? '…' : '') }}</p>
+          <p class="whitespace-pre-wrap text-sm">
+            {{ m.content || (sending && i === messages.length - 1 ? '…' : '') }}
+          </p>
         </div>
       </div>
 
       <form class="flex gap-2 pt-4" @submit.prevent="send">
-        <UInput v-model="input" placeholder="Ask something..." class="flex-1" :disabled="sending" />
-        <UButton type="submit" :loading="sending" :disabled="!input.trim()">Send</UButton>
+        <UInput
+          v-model="input"
+          placeholder="Ask something..."
+          class="flex-1"
+          :disabled="sending"
+          :ui="{ base: 'bg-white/[0.04] border border-white/10 text-white placeholder:text-white/40 focus:ring-[#FEF47A]' }"
+        />
+        <UButton
+          type="submit"
+          :loading="sending"
+          :disabled="!input.trim()"
+          class="bg-[#FEF47A] text-[#141413] hover:bg-[#fdec4d] disabled:opacity-50"
+        >
+          Send
+        </UButton>
       </form>
     </main>
   </div>
