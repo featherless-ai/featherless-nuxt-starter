@@ -107,6 +107,90 @@ commits. Run this immediately after cloning so the new repo's
 
 ---
 
+## `platform_scripts/release.sh` — bump appVersion, commit, tag, push
+
+### Purpose
+
+Ship a new version. Bumps `appVersion` in `app.yaml`, commits, pushes
+`main`, creates an annotated `vX.Y.Z` tag, pushes the tag. GitLab CI
+then builds and publishes the Docker image.
+
+Copied verbatim from feather-agent's `platform_scripts/release.sh` —
+the script is generic to any Featherless internal-app whose
+`app.yaml` has a dotted-decimal `appVersion:` line.
+
+### When to reach for it
+
+The user says any of: "ship it", "release", "tag a new version", "bump
+the version", "push a new build", "release a patch/minor/major",
+"deploy". Also implicit: the user just finished a code change and
+asked you to make it live in a deployed sandbox.
+
+### When NOT to reach for it
+
+- The change is dev tooling only (e.g. editing `platform_scripts/`
+  itself, or a README). No image rebuild needed → commit and push
+  manually, skip the version bump.
+- The working tree has unrelated in-progress work the user hasn't
+  decided about. The script bundles `git add -u` into the same commit
+  as the version bump.
+- You're not sure the change actually compiles / passes tests. The
+  script doesn't run tests. Get a green local build first.
+
+### Inputs
+
+| name | type | required | notes |
+|---|---|---|---|
+| `bump_level` | `patch` \| `minor` \| `major` | yes | semver step from current `appVersion` |
+| `message` | string | no | commit + tag message. Defaults to `Release vX.Y.Z`. |
+
+### Clarifying questions to ask
+
+1. **Which bump level?** Infer from the staged diff:
+   - `patch` — bug fix, doc tweak, no consumer-visible change
+   - `minor` — new feature, new env var, backwards-compatible addition
+   - `major` — breaking change to API, env contract, or entrypoint
+2. **Commit message?** Draft one from the staged diff if not given.
+3. **Uncommitted work?** Check `git status` first. Tracked-modified
+   files get bundled into the release commit; untracked files do not.
+4. **Tag exists?** `git tag -l "v$NEXT"`. Surface before invoking.
+
+### Invocation
+
+```sh
+./platform_scripts/release.sh <bump_level> "<message>"
+```
+
+### What to verify after
+
+1. CI green (3 jobs: `build`, `publish:latest`, `publish:release`).
+2. `featherlessai/<slug>:<X.Y.Z>` exists on Docker Hub.
+3. A fresh sandbox spawn picks up the new tag (user-triggered).
+
+### Gotchas
+
+- **Doesn't watch CI.** Returns after `git push origin <tag>`. Poll
+  via `glab ci list` if the user wants to be notified.
+- **`app.yaml` couples `appVersion` to image tag.** A manual `git tag`
+  without bumping `appVersion` is meaningless — sandbox-svc pulls the
+  image at the `appVersion` literal.
+- **Requires `INTERNAL_NPM_TOKEN` CI variable** if the app pulls
+  `@featherless/*` packages. The starter doesn't today, so this is a
+  non-issue unless you add private deps.
+- **Don't release before a weekend** unless someone's around to fix CI
+  if it fails.
+
+### Failure modes
+
+| Output | Cause | Fix |
+|---|---|---|
+| `appVersion in app.yaml is not X.Y.Z` | quoted or `appVersion: latest` | Normalize to `appVersion: 0.0.1`, re-run |
+| `tag vX.Y.Z already exists` | partial prior release | Bump again, or `git tag -d` if junk |
+| `no app.yaml at <root>` | wrong dir | `cd` to repo root |
+| Pre-commit hook fail | lint/format issue | Fix the underlying issue. Never `--no-verify`. |
+
+---
+
 ## How this fits into the Featherless seeding flow (Option C)
 
 As of the design discussion on 2026-05-13, sandbox-svc's
