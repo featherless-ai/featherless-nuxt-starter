@@ -26,7 +26,7 @@ bun run dev
 ## Forking this as a new app
 
 ```sh
-gh repo create my-org/my-app --template featherlessai/featherless-nuxt-starter --clone
+gh repo create my-org/my-app --template featherless-ai/featherless-nuxt-starter --clone
 cd my-app
 ./platform_scripts/bootstrap.sh --slug my-app --name "My Cool App"
 git push origin main
