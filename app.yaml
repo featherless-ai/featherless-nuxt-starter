@@ -1,0 +1,34 @@
+version: 1
+name: Featherless Nuxt Starter
+description: Minimal Nuxt + Vercel AI SDK starter for Featherless internal-apps.
+appVersion: 0.0.1
+icon: app-icon.svg
+image: docker.io/featherlessai/featherless-nuxt-starter:{{appVersion}}
+services:
+  - port: 3000
+    path: /
+    restartOnFailure: false
+persistentPaths: []
+fields:
+  - key: featherlessModel
+    type: model
+    label: Featherless Model
+    description: Default model ID for the chat.
+    required: true
+    default: "zai-org/GLM-5.1"
+  - key: featherlessApiKey
+    type: password
+    label: Featherless API Key
+    placeholder: "rc_..."
+    required: true
+    description: "featherless.ai → Account Settings → API Keys"
+  - key: featherlessApiBaseUrl
+    type: text
+    label: Featherless API Base URL
+    default: "https://api.featherless.ai/v1"
+    advanced: true
+envTemplate:
+  FEATHERLESS_MODEL: "{{featherlessModel}}"
+  FEATHERLESS_API_KEY: "{{featherlessApiKey}}"
+  FEATHERLESS_API_BASE_URL: "{{featherlessApiBaseUrl}}"
+seedFileTemplates: []
