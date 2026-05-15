@@ -14,6 +14,14 @@ RUN bun install --frozen-lockfile || bun install
 # Source.
 COPY . .
 
+# Ensure entrypoint.sh is executable. The file IS executable in git (mode
+# 100755) and in a fresh `git clone`, but sandbox-svc's commitMulti REST
+# call drops the mode when pushing the rewritten starter into a new
+# GitLab project — so by the time Docker COPYs it during the build, the
+# executable bit is gone and Daytona's ENTRYPOINT fails with "permission
+# denied: /app/entrypoint.sh". Defensive chmod here covers either path.
+RUN chmod +x /app/entrypoint.sh
+
 # Build Nuxt for production. Outputs to .output/server/index.mjs.
 RUN bun run build
 
