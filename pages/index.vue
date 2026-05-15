@@ -1,7 +1,10 @@
 <script setup lang="ts">
 type Msg = { role: 'user' | 'assistant'; content: string };
 
-const config = useRuntimeConfig();
+// Pulls the model name (and any future public config) from /api/config so the
+// server reads it from process.env at request time — no Nuxt runtimeConfig +
+// no NUXT_* env-var bridge needed for new vars.
+const { data: appConfig } = await useFetch<{ defaultModel: string }>('/api/config');
 const messages = ref<Msg[]>([]);
 const input = ref('');
 const sending = ref(false);
@@ -49,7 +52,7 @@ async function send() {
         <img src="/featherless-logo.svg" alt="Featherless" class="w-9 h-9 rounded-lg" />
         <div>
           <h1 class="text-lg font-semibold tracking-tight">Featherless Nuxt Starter</h1>
-          <p class="text-xs text-white/50 font-mono">{{ config.public.defaultModel }}</p>
+          <p class="text-xs text-white/50 font-mono">{{ appConfig?.defaultModel }}</p>
         </div>
       </div>
     </header>
